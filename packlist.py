@@ -2,13 +2,26 @@ import os
 import re
 
 
-def process_delivery_note(filename: str):
+def get_notes() -> tuple[list[str], list[str]]:
+    path = os.path.dirname(__file__)
+    files = os.listdir(path)
+    del_notes = [file for file in files if file.startswith(('Del', 'lnb'))]
+    we_notes = [file for file in files if file.startswith('kfm')]
+    return del_notes, we_notes
+
+
+def process_del_note(filename: str) -> list[str]:
+    """Returns a list of parts contained within the del note in the format:
+    '{note_number}, {order_number}, {part_number}, {quantity}'"""
     note_pattern = re.compile(r'Ind. (\w*)')
     order_pattern = re.compile(r'\d\(([A-Z]{1,3}\d{5}[A-Z]?)')
     replacement_pattern_1 = re.compile(r'(\w{5}[-BCT]\w{5}([-JN][\dA-Z]{3})? replaces :)')
     replacement_pattern_2 = re.compile(r'(\w{5}[-BCT]\w{5}([-JN][\dA-Z]{3})? is replaced by :)')
     part_pattern = re.compile(r'(\w\d{4}[-BCT]\w{5}([-JN][\dA-Z]{3})?).*\s(\d{1,3})\n')
+
     parts = []
+    note_number = ''
+    order_number = ''
 
     # read the contents of the file
     with open(filename) as file:
@@ -32,6 +45,10 @@ def process_delivery_note(filename: str):
 
 
 def main():
+    del_parts = []
+    del_notes, we_notes = get_notes()
+    for note_filename in del_notes:
+        del_parts.extend(process_del_note(note_filename))
     pass
 
 
