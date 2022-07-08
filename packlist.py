@@ -18,7 +18,7 @@ def process_del_note(filename: str) -> list[str]:
     order_pattern = re.compile(r'\d\(([A-Z]{1,3}\d{5}[A-Z]?)')
     replacement_pattern_1 = re.compile(r'(\w{5}[-BCT]\w{5}([-JN][\dA-Z]{3})? replaces :)')
     replacement_pattern_2 = re.compile(r'(\w{5}[-BCT]\w{5}([-JN][\dA-Z]{3})? is replaced by :)')
-    part_pattern = re.compile(r'(\w\d{4}[-BCT]\w{5}([-JN][\dA-Z]{3})?).*\s(\d{1,3})\n')
+    part_pattern = re.compile(r'((KIT)?\w\d{4}[-BCT]\w{5}([-JN][\dA-Z]{3})?).*\s(\d{1,3})\n')
 
     parts = []
     note_number = ''
@@ -44,8 +44,9 @@ def process_del_note(filename: str) -> list[str]:
             order_number = match[0]
         # extract part number and quantity
         elif match := part_pattern.findall(line):
-            part_number, _, quantity = match[0]
-            parts.append(f'{note_number}, {order_number}, {part_number}, {quantity}\n')
+            part_number = match[0][0]
+            quantity = line[-3:].strip()
+            parts.append(f'{note_number},{order_number},{part_number},{quantity}\n')
 
     return parts
 
